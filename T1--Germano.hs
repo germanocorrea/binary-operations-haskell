@@ -33,10 +33,10 @@ bin2dec (1:xs) = 2 ^ (length xs) + (bin2dec xs)
  - 𝑑𝑒𝑐2𝑏𝑖𝑛 ∷ 𝐼𝑛𝑡 → 𝐼𝑛𝑡 → [𝐼𝑛𝑡]
 --}
 
--- TODO: lidar com overflow
 -- ex: dec2bin 7 4 = [0,1,1,1]
 dec2bin :: Int -> Int -> [Int]
-dec2bin _ 0 = []
+dec2bin x 0 | x > 0 = error "overflow, use mais bits para n"
+            | otherwise = []
 dec2bin 0 n = dec2bin         0 (n - 1) ++ [0]
 dec2bin x n = dec2bin quociente (n - 1) ++ [bit]
             where
@@ -51,7 +51,6 @@ dec2bin x n = dec2bin quociente (n - 1) ++ [bit]
  - 𝑑𝑒𝑐2𝑏𝑖𝑛𝑐𝑜𝑚𝑝𝑙 ∷ 𝐼𝑛𝑡 → 𝐼𝑛𝑡 → [𝐼𝑛𝑡]
  - --}
 
--- TODO: se usarmos apenas 4 bits em n, e o numero tiver 4 bits (por ex: 8 -> 1000) a representacao fica errada, deveria dar overflow
 -- ex: dec2bincompl (-13) 8 = [1,1,1,1,0,0,1,1]
 dec2bincompl :: Int -> Int -> [Int]
 dec2bincompl x n | x < 0           = snd (somabin complemento_um soma_um) -- snd porque somabin retorna uma tupla, primeiro elemento é o overflow/carry
@@ -129,7 +128,7 @@ frac2bin dec = (dec2bincompl parte_inteira 16, dec2binfrac parte_fracionaria 16)
 -- calcula apenas a parte fracionaria
 -- ex: dec2binfrac 0.5 4 = [1,0,0,0]
 dec2binfrac :: Double -> Int -> [Int]
-dec2binfrac _   0 = []
+dec2binfrac _   0 = [] -- caso haja um estouro na representação, essa regra garante que seja truncado o reulstado
 dec2binfrac 0.0 n = 0             : dec2binfrac 0.0 (n - 1)
 dec2binfrac dec n = parte_inteira : dec2binfrac fracao_restante (n - 1)
                           where
